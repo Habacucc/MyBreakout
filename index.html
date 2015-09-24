@@ -1,0 +1,567 @@
+<!doctype html>
+<head>
+	<meta charset="UTF-8" />
+	<title>
+		My Breakout! (Mouse)
+	</title>
+	<script type="text/javascript" src="phaser.min.js">
+	</script>
+	<style type="text/css">
+		body{
+			margin:0;
+		}
+	</style>
+</head>
+
+<body>
+	
+	<script type="text/javascript">
+
+		var ball;
+		var bricks;
+		//var yellowBrick;
+		//var redBrick;
+		//var tealBrick;
+		//var greenBrick;
+		var paddle;
+		var paddleSize= 0;
+		
+		var score= 0;
+		var lives= 3;
+		var scoreText;
+		var livesText;
+		var initText;
+		
+		var ballOnPaddle= true;
+		
+		var buffs;
+		var buffNum= 2;
+		
+		var hitBrickSound;
+		var hitPaddleSound;
+		var PowerUpSound;
+		var PowerDownSound;
+		var BallLostSound;
+		var Win1Sound;
+		var GameOverSound;
+		var BGMusic2Music;
+		
+		var pauseMusic;
+		
+		//////////////////////////////////////////////////////
+	
+		var GameStates= {};
+		
+		GameStates.MainMenu= function(){};		
+		GameStates.dummy= function(){};
+		
+		GameStates.mainGame= function(game){
+		this.ball;
+		this.bricks;
+		//var yellowBrick;
+		//var redBrick;
+		//var tealBrick;
+		//var greenBrick;
+		this.paddle;
+		this.paddleSize= 0;
+		
+		this.score= 0;
+		this.lives= 3;
+		this.scoreText;
+		this.livesText;
+		this.initText;
+		
+		this.ballOnPaddle= true;
+		
+		this.buffs;
+		this.buffNum= 2;
+		
+		this.hitBrickSound;
+		this.hitPaddleSound;
+		this.PowerUpSound;
+		this.PowerDownSound;
+		this.BallLostSound;
+		this.Win1Sound;
+		this.GameOverSound;
+		this.BGMusic2Music;
+		
+		this.pauseMusic;
+		};
+		
+		GameStates.MainMenu.prototype= {
+			
+			preload: function(){
+				this.load.image('logo', 'assets/logo.jpg');
+				this.load.image('starfield', 'assets/starfield.png');
+				this.load.spritesheet('button', 'assets/flixel-button.png', 80, 20);
+			},
+			
+			create: function(){
+				this.MainMenuBG= this.add.tileSprite(0,0,800,600,'starfield');
+				this.MainMenuLogo= this.add.sprite(game.width/2, 100, 'logo');
+				this.MainMenuLogo.anchor.setTo(0.5,0.5);
+				this.NewGameButton= this.add.button(400, 300 - 50, 'button', clickNewGame, this, 0 , 1, 2);
+				this.NewGameButton.scale.setTo(3,2.5);
+				this.NewGameButton.anchor.setTo(0.5, 0.5);
+				
+				//var button= game.add.button(10, 10, 'button', click, this, 0, 1 , 2);
+			//button.name= 'PlayOrPauseButton';
+				//this.button.scale.set(2, 1.5);
+				//this.button.smoothed= true;
+				this.btnText= this.add.text(40, 17, 'Start New Game', {font:'24px Arial', fill:'#000', align:'center'});
+				this.btnText.anchor.setTo(0.5, 0.5);
+				this.btnText.x= this.NewGameButton.x;
+				this.btnText.y= this.NewGameButton.y;
+				
+				
+			},
+			
+			update: function(){
+				//this.gameLogo.x+=1;
+			}
+			
+			
+			/*
+			function clickNewGame(){
+				this.btnText.text= 'WTF';
+				//this.state.start('game');
+		}*/
+			
+			
+		}
+		
+		function clickNewGame(){
+				
+				//game.switchState();
+				
+				//this.state.start('dummy');
+				//this.state.start('game');
+				//game.state.start('dummy');
+				//game.state.start('mainGame');
+				this.state.start('mainGame');
+				}
+		
+		GameStates.dummy.prototype= {
+			
+			preload: function(){
+				this.load.image('logo', 'assets/logo.jpg');
+				this.load.image('starfield', 'assets/starfield.png');
+				this.load.spritesheet('button', 'assets/flixel-button.png', 80, 20);
+			},
+			
+			create: function(){
+				this.MainMenuBG= this.add.tileSprite(0,0,800,600,'starfield');
+				this.MainMenuLogo= this.add.sprite(game.width/2, 100, 'logo');
+				this.MainMenuLogo.anchor.setTo(0.5,0.5);
+				this.NewGameButton= this.add.button(400, 300 - 50, 'button', clickdummy, this, 0 , 1, 2);
+				this.NewGameButton.scale.setTo(3,2.5);
+				this.NewGameButton.anchor.setTo(0.5, 0.5);
+				
+				//var button= game.add.button(10, 10, 'button', click, this, 0, 1 , 2);
+			//button.name= 'PlayOrPauseButton';
+				//this.button.scale.set(2, 1.5);
+				//this.button.smoothed= true;
+				this.btnText= this.add.text(40, 17, 'WTF IM A DUMMY', {font:'24px Arial', fill:'#000', align:'center'});
+				this.btnText.anchor.setTo(0.5, 0.5);
+				this.btnText.x= this.NewGameButton.x;
+				this.btnText.y= this.NewGameButton.y;
+				
+				
+			},
+			
+			update: function(){
+				//this.gameLogo.x+=1;
+			}
+			
+		}
+		
+		GameStates.mainGame.prototype= {
+		
+		//function preload(){
+		preload: function(){
+			//game.state.start('MainMenu');
+			
+			this.load.image('bg', 'assets/water_texture.jpg');
+			this.load.spritesheet('button', 'assets/flixel-button.png', 80, 20);
+			this.load.atlas('breakoutProto', 'assets/breakoutProto.png', 'assets/breakoutProto.json');
+			this.load.audio('HitBrick', 'assets/HitBrick.ogg');
+			this.load.audio('HitPaddle', 'assets/HitPaddle.ogg');
+			this.load.audio('HitPaddle2', 'assets/HitPaddle2.wav');
+			this.load.audio('HitPaddle3', 'assets/HitPaddle3.wav');
+			this.load.audio('PowerUp', 'assets/PowerUp.ogg');
+			this.load.audio('PowerDown', 'assets/PowerDown.ogg');
+			this.load.audio('BallLost', 'assets/BallLost.wav');
+			this.load.audio('Win1', 'assets/Win1.wav');
+			this.load.audio('GameOver', 'assets/GameOver.ogg');
+			this.load.audio('BGMusic2', 'assets/BGMusic2.ogg');
+			//game.load.image('pokeballRoll', 'assets/pokeballRoll.gif');
+			/*game.load.image('ball', 'assets/ball.png');
+			game.load.image('brick1', 'assets/brick1.png');
+			game.load.image('brick2', 'assets/brick2.png');
+			game.load.image('brick3', 'assets/brick3.png');
+			game.load.image('brick4', 'assets/brick4.png');
+			game.load.image('paddle', 'assets/paddle.png');*/
+		},
+		
+		
+		
+		
+		//function create(){
+		create:function(){
+			
+			//game.state.start('MainMenu');
+			this.physics.startSystem(Phaser.Physics.ARCADE);
+			
+			//Check for collisions except on the bottom
+			this.physics.arcade.checkCollision.down= false;
+			
+			//Background
+			this.s= this.add.tileSprite(0,0,800,600, 'bg');
+			
+			this.hitBrickSound= this.add.audio('HitBrick');
+			this.hitPaddleSound= this.add.audio('HitPaddle2');
+			this.PowerUpSound= this.add.audio('PowerUp');
+			this.PowerDownSound= this.add.audio('PowerDown');
+			this.BallLostSound= this.add.audio('BallLost');
+			this.Win1Sound= this.add.audio('Win1');
+			this.GameOverSound= this.add.audio('GameOver');
+			this.BGMusic2Music= this.add.audio('BGMusic2');
+			
+			this.BGMusic2Music.play('', 0, 0.5, true);
+			//BGMusic2Music.volume-= 0.8;
+			
+			this.button= this.add.button(10, 10, 'button', click, this, 0, 1 , 2);
+			//button.name= 'PlayOrPauseButton';
+			this.button.scale.set(2, 1.5);
+			this.button.smoothed= true;
+			this.btnText= this.add.text(40, 17, 'Play/Pause Music', {font:'12px Arial', fill:'#ffffff', align:'center'});
+			//btnText.x+= (button.width/2) - (btnText.textWidth/2);
+			
+			this.button2= this.add.button(630, 10, 'button' , clickMainMenu, this, 0 , 1 , 2);
+			this.button2.scale.setTo(2, 1.5);
+			this.button2.smoothed= true;
+			//this.button2.anchor.setTo(0.5, 0.5);
+			this.btnText2= this.add.text(this.button2.x+ 50, this.button2.y+7, 'Main Menu', {font:'12px Arial', fill:'#ffffff', align:'center'});
+			//this.btnText2.anchor.setTo(0.5, 0.5);
+			
+			
+			this.pauseMusic= this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			
+			//pauseMusic.onDown(PauseOrResume, this);
+			
+			
+			this.buffs= this.add.group();
+			this.buffs.enableBody= true;
+			
+			this.bricks= this.add.group();
+			this.bricks.enableBody= true;
+			this.bricks.physicsBodyType= Phaser.Physics.ARCADE;
+			
+			//var brick;
+			
+			//Create the bricks
+			for(var i=0; i<4; i++){
+				for(var j=0; j<15; j++){
+					this.brick= this.bricks.create(100 + (j*40), 100 + (i*48),'breakoutProto', 'brick'+(i+1)+'.png');
+					this.brick.body.bounce.set(1);
+					this.brick.body.immovable= true;
+				}
+			}
+			
+			//Create paddle
+			this.paddle= this.add.sprite(game.world.centerX, 530,'breakoutProto', 'normalPaddle.png');
+			this.paddle.anchor.setTo(0.5,0.5);
+			
+			this.physics.enable(this.paddle, Phaser.Physics.ARCADE);
+			
+			this.paddle.body.bounce.set(1);
+			this.paddle.body.collideWorldBounds= true;
+			this.paddle.body.immovable= true;
+			
+			this.paddle.animations.add('normalPaddle', ['normalPaddle.png'], 10, false, false);
+			this.paddle.animations.add('smallPaddle', ['smallPaddle.png'], 10, false, false);
+			this.paddle.animations.add('bigPaddle', ['bigPaddle.png'], 10, false, false);
+			
+			//ball.animations.add('spin', [ 'ball_1.png', 'ball_2.png', 'ball_3.png', 'ball_4.png', 'ball_5.png' ], 50, true, false);
+			
+			//Create Ball
+			this.ball= this.add.sprite(game.world.centerX, 500, 'breakoutProto' ,'pokeball.png');
+			this.ball.anchor.setTo(0.5,0.5);
+			
+			this.ball.checkWorldBounds = true;
+			this.physics.enable(this.ball, Phaser.Physics.ARCADE);
+			
+			this.ball.body.bounce.set(1);
+			this.ball.body.collideWorldBounds= true;
+			//paddle.body.immovable= true;
+			
+			
+			
+			//Check if ball is lost (goes bottom)
+			this.ball.events.onOutOfBounds.add(ballLost, this);
+			
+			ballOnPaddle= true;
+			this.ball.reset(this.paddle.body.x, this.paddle.body.y-12);
+			
+			this.scoreText= this.add.text(20, 560, 'Score: '+score, {font:"20px Arial", fill:"#000", align:"left"});
+			this.livesText=this.add.text(game.world.width-100, 560, 'Lives: '+lives, {font:"20px Arial", fill:"#000", align:"left"});
+			this.initText= this.add.text(game.world.centerX, 400, '-- Click to Start! --', {font:"40px Arial", fill:"#000", align:"left"});
+			this.initText.anchor.setTo(0.5,0.5);
+			//scoreText = game.add.text(32, 550, 'score: 0', { font: "20px Arial", fill: "#ffffff", align: "left" });
+			
+			//Start game/ball
+			this.input.onDown.add(releaseBall, this);
+			
+			
+			
+		},
+		
+		//function update(){
+		update: function(){
+		
+			this.paddle.body.x= this.input.x;
+			//this.paddle.x= this.input.x;
+			this.pauseMusic.onDown.add(PauseOrResume, this);
+			
+			//Limit the paddle to the world bounds
+			if(this.paddle.x < 30){
+				this.paddle.x = 30;
+			}
+			
+			else if(this.paddle.x > game.width - 30){
+				this.paddle.x = game.width - 30;
+			}
+			
+			if(ballOnPaddle){
+				this.ball.x= this.paddle.x;
+				this.ball.y= this.paddle.y-12;
+			}
+			
+			else{
+				this.physics.arcade.collide(this.ball, this.bricks, ballHitsBrick, null, this);
+				this.physics.arcade.collide(this.ball, this.paddle, ballHitsPaddle, null, this);
+				this.physics.arcade.overlap(this.buffs, this.paddle, buffTouchesPaddle, null, this);
+			}
+			
+		}
+		
+		}
+		
+		
+		/*function clickNewGame(){
+				
+		}*/
+		
+		function clickdummy(){
+			game.state.start('MainMenu');
+		}
+		
+		//var state1= {preload:preload, create:create, update:update/*, render:render*/};
+		
+		//var game= new Phaser.Game(800,600, Phaser.AUTO, '', {preload:preload, create:create, update:update/*, render:render*/});
+		
+		
+		
+		function releaseBall(){
+			if(ballOnPaddle){
+				this.ball.body.velocity.y= -240;
+				this.ball.body.velocity.x= -75;
+				ballOnPaddle= false;
+				this.initText.visible= false;
+			}
+		}
+		
+		function ballLost(){
+			this.lives--;
+			this.livesText.text= 'Lives: '+this.lives;
+			
+			if(this.lives===0){
+				gameOver(this.ball, this.initText);
+				this.GameOverSound.play();
+			}
+			
+			else{
+			//Return the ball to the paddle
+			ballOnPaddle= true;
+			this.ball.reset(this.paddle.body.x, this.paddle.y-12);
+			this.buffs.callAll('kill');
+			this.BallLostSound.play();
+			
+			}
+		}
+		
+		function ballHitsBrick(_ball, _brick){
+		
+			var generateBuff= Math.random();
+			
+			if(generateBuff < 0.2)
+			{
+				var whichBuff= Math.random();
+				if(whichBuff < 0.5){
+				this.buff= this.buffs.create(_brick.x, _brick.y, 'breakoutProto', 'star1.png');
+				this.buff.number= 1;
+				//buffNum= 1;
+				}
+				else{
+				this.buff= this.buffs.create(_brick.x, _brick.y, 'breakoutProto', 'star2.png');
+				this.buff.number= 2;
+				//buffNum= 2;
+				}
+				
+				//game.physics.enable(buff, Phaser.Physics.ARCADE);
+				this.buff.body.gravity.y= 50;
+				
+			}
+			
+			if(_ball.y > _brick.y){
+				this.ball.body.velocity.y+=6;
+			}
+			
+			else if(_ball.y < _brick.y){
+				this.ball.body.velocity.y-=6;
+			}
+			
+			
+			_brick.kill();
+			this.score+=10;
+			this.scoreText.text= 'Score: '+this.score;
+			//ball.body.velocity.y+=50;
+			
+			if(this.bricks.countLiving() === 0){
+				this.score+=1000;
+				this.scoreText.text= 'Score: '+this.score;
+				this.initText.text= '-- Next Level! --';
+				this.initText.visible= true;
+				this.bricks.callAll('revive');
+				this.buffs.callAll('kill');
+				
+				//Return the ball to the paddle
+				ballOnPaddle= true;
+				this.ball.reset(this.paddle.body.x, this.paddle.y-12);
+				
+				this.paddle.animations.play('normalPaddle');
+				this.paddleSize=0;
+				this.Win1Sound.play();
+			}
+			
+			this.hitBrickSound.play();
+			
+		}
+		
+		function ballHitsPaddle(_ball, _paddle){
+			var diff;
+			
+			//Ball hit paddle on the left side
+			if(_ball.x < _paddle.x){
+				diff= _paddle.x - _ball.x;
+				_ball.body.velocity.x= (-10 * diff);
+			}
+			
+			//Ball hit paddle on the right side
+			else if(_ball.x > _paddle.x){
+				diff= _ball.x - _paddle.x;
+				_ball.body.velocity.x= (10 * diff);
+			}
+			
+			//Ball hit paddle on the middle, randomize a little
+			else{
+				_ball.body.velocity.x= 2+ Math.random() * 8;
+			}
+			
+			this.hitPaddleSound.play();
+			
+		}
+		
+		function gameOver(ball, initText){
+			//ball.kill();
+			ball.body.velocity.x= 0;
+			initText.text= '-- Game Over! --';
+			initText.visible= true;
+		}
+		
+		function buffTouchesPaddle(paddle, buff){
+			
+			buff.kill();
+			
+			if(buff.number===1){
+				//paddle.loadTexture('breakoutProto', 'smallPaddle.png');
+				//paddle.frame= 'smallPaddle.png';
+				
+				if(this.paddleSize===2){
+					paddle.animations.play('normalPaddle');
+					this.paddleSize=0;
+					this.PowerDownSound.play();
+				}
+				
+				else if(this.paddleSize===0){
+					paddle.animations.play('smallPaddle');
+					this.paddleSize=1;
+					this.PowerDownSound.play();
+				}
+				
+			}
+			
+			else if(buff.number===2){
+				//paddle.loadTexture('breakoutProto', 'bigPaddle.png');
+				//paddle.frame= 'bigPaddle.png';
+				
+				if(this.paddleSize===1){
+					paddle.animations.play('normalPaddle');
+					this.paddleSize=0;
+					this.PowerUpSound.play();
+				}
+				
+				else if(this.paddleSize===0){
+					paddle.animations.play('bigPaddle');
+					this.paddleSize=2;
+					this.PowerUpSound.play();
+				}
+				
+			}
+		}
+		
+		function PauseOrResume(){
+			if(this.BGMusic2Music.isPlaying){
+				this.BGMusic2Music.pause();
+			}
+			
+			else{
+				this.BGMusic2Music.resume();
+			}
+		
+		}
+		
+		function click(){
+			if(this.BGMusic2Music.isPlaying){
+				this.BGMusic2Music.pause();
+			}
+			
+			else{
+				this.BGMusic2Music.resume();
+			}
+		}
+		
+		function clickMainMenu(){
+			this.state.start('MainMenu');
+			this.BGMusic2Music.stop();
+		}
+		
+		
+		var game= new Phaser.Game(800,600, Phaser.AUTO, '');
+		game.state.add('MainMenu', GameStates.MainMenu);
+		game.state.add('dummy', GameStates.dummy);
+		game.state.add('mainGame', GameStates.mainGame);
+		
+		game.state.start('MainMenu');
+		
+		
+		/*function render() {
+		game.debug.soundInfo(BGMusic2Music, 20, 32);
+		}*/
+		
+		
+		
+	</script>
+	
+	
+</body>
